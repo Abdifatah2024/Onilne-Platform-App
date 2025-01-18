@@ -1,40 +1,34 @@
-// 
-import React from 'react';
+// import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 
 const Login = () => {
-  const handleLoginSubmit = (event) => {
-    event.preventDefault(); // Prevent form submission from reloading the page
+  // Validation Schema using Yup
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters long')
+      .required('Password is required'),
+  });
 
-    // Retrieve user inputs
-    const formData = new FormData(event.target);
-    const email = formData.get('email');
-    const password = formData.get('password');
+  // Handle form submission
+  const handleSubmit = (values, { resetForm }) => {
+    const { email, password } = values;
 
-    // Validate user input
-    if (email && password) {
-      // Show success notification
-      Swal.fire({
-        icon: 'success',
-        title: 'Login Successful',
-        html: `
-          <p>Welcome back, <strong>${email}</strong>!</p>
-          <p>You have successfully logged in.</p>
-        `,
-        confirmButtonColor: '#ff6600',
-      });
+    // Success notification
+    Swal.fire({
+      icon: 'success',
+      title: 'Login Successful',
+      html: `
+        <p>Welcome back, <strong>${email}</strong>!</p>
+        <p>You have successfully logged in.</p>
+      `,
+      confirmButtonColor: '#ff6600',
+    });
 
-      // Reset form (optional)
-      event.target.reset();
-    } else {
-      // Show error notification if fields are empty
-      Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: 'Please enter both your email and password to log in.',
-        confirmButtonColor: '#ff6600',
-      });
-    }
+    // Optionally reset form fields
+    resetForm();
   };
 
   return (
@@ -46,58 +40,76 @@ const Login = () => {
           <p className="text-gray-500">Sign in to your account</p>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLoginSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+        {/* Formik Form */}
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <Field
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                  placeholder="Enter your email"
+                />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
 
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+              <div className="mb-6">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <Field
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                  placeholder="Enter your password"
+                />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="h-4 w-4 text-orange-500 border-gray-300 rounded focus:ring-orange-400"
-              />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
-            </label>
-            <a href="#" className="text-sm text-orange-500 hover:underline">
-              Forgot Password?
-            </a>
-          </div>
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center">
+                  <Field
+                    type="checkbox"
+                    name="rememberMe"
+                    className="h-4 w-4 text-orange-500 border-gray-300 rounded focus:ring-orange-400"
+                  />
+                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                </label>
+                <a href="#" className="text-sm text-orange-500 hover:underline">
+                  Forgot Password?
+                </a>
+              </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
-          >
-            Sign In
-          </button>
-        </form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Signing In...' : 'Sign In'}
+              </button>
+            </Form>
+          )}
+        </Formik>
 
         {/* Divider */}
         <div className="flex items-center my-6">

@@ -1,9 +1,12 @@
-// import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 
 const Login = () => {
+  // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
+
   // Validation Schema using Yup
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -14,13 +17,13 @@ const Login = () => {
 
   // Handle form submission
   const handleSubmit = (values, { resetForm }) => {
-    const { email, password } = values;
+    const { email } = values;
 
     // Success notification
     Swal.fire({
       icon: 'success',
       title: 'Login Successful',
-      html: `
+      html: ` 
         <p>Welcome back, <strong>${email}</strong>!</p>
         <p>You have successfully logged in.</p>
       `,
@@ -66,12 +69,12 @@ const Login = () => {
                 />
               </div>
 
-              <div className="mb-6">
+              <div className="mb-6 relative">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <Field
-                  type="password"
+                  type={showPassword ? 'text' : 'password'} // Toggle between text and password
                   id="password"
                   name="password"
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
@@ -82,6 +85,23 @@ const Login = () => {
                   component="div"
                   className="text-red-500 text-sm mt-1"
                 />
+
+                {/* Password visibility toggle */}
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12.5A3.5 3.5 0 0011.5 9C9.5 9 8 7.5 8 5.5A3.5 3.5 0 005.5 2 6 6 0 000 5a6 6 0 006 6h9a6 6 0 006-6 6 6 0 00-6-6 3.5 3.5 0 015 5.5c0 2-1.5 3.5-3.5 3.5z" />
+                    </svg> // Eye Slash Icon (Hide)
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 4a6 6 0 016 6c0 1.745-.697 3.58-1.852 5.02l-1.192-1.61A4.992 4.992 0 0014 10a5 5 0 10-5 5c-.252 0-.493-.056-.725-.161l-1.203 1.614A6.074 6.074 0 0110 16a6 6 0 010-12zm1 9a3 3 0 11-2-5.236A5.975 5.975 0 0010 14z" />
+                    </svg> // Eye Icon (Show)
+                  )}
+                </button>
               </div>
 
               {/* Remember Me & Forgot Password */}
